@@ -467,17 +467,16 @@ else:
 # --- 시간 범위 ---
 st.subheader("시간 범위 (KST, 한국시간)")
 
-# 체크박스와 복잡한 if/else 로직을 제거하고, 심플하게 배치
+# 💡 팁: step=60 을 넣으면 1분 단위로 선택할 수 있습니다.
 tc1, tc2 = st.columns(2)
 
 with tc1:
-    # time_input은 기본적으로 키보드 입력과 클릭 선택 모두 지원합니다.
-    t_start = st.time_input("시작", value=time(10, 0), key="t_start_picker")
+    t_start = st.time_input("시작", value=time(10, 0), step=60, key="t_start_picker")
 
 with tc2:
-    t_end = st.time_input("종료", value=time(11, 0), key="t_end_picker")
+    t_end = st.time_input("종료", value=time(11, 0), step=60, key="t_end_picker")
 
-st.caption("※ 내부적으로는 UTC epoch(마이크로초)로 변환해서 정확히 자릅니다. CSV에는 time_kst 컬럼을 추가합니다.")
+st.caption("※ 1분 단위로 조절 가능합니다. (직접 타이핑 입력도 가능)")
 
 run = st.button("🚀 다운로드 + 변환 실행", type="primary")
 
@@ -561,3 +560,4 @@ with st.expander("🧯 자주 나는 에러 / 해결"):
 - **time_kst가 이상함**: tags.csv로 KST 변환이 맞는지 확인  
         """
     )
+
