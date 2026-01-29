@@ -25,6 +25,7 @@ DEFAULT_PROG = "1"
 DEFAULT_SITE = "1"
 
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
+# Streamlit Cloud 등 서버 환경을 고려해 임시 폴더 경로를 안전하게 설정
 CACHE_DIR = os.path.join(APP_DIR, "_cache_avro")
 OUT_DIR = os.path.join(APP_DIR, "_output_csv")
 
@@ -388,18 +389,8 @@ def make_zip_from_dir(root_dir: str) -> bytes:
 st.set_page_config(page_title="EmbracePlus Downloader", layout="wide")
 st.title("EmbracePlus 데이터 다운로드 + CSV 변환 (단일 시간범위, KST 표기)")
 
-with st.expander("✅ 사전 준비(각 PC에서 1번만)", expanded=True):
-    st.markdown(
-        """
-**각 팀원 PC에서 1번만 하면 되는 것**
-1) AWS CLI 설치  
-2) `aws configure --profile deviceA` (Blue용) / `aws configure --profile deviceB` (Green용)  
-3) 이 앱 실행 (`python -m streamlit run app.py`)
-
-> 앱은 `us-east-1` 리전의 S3를 읽습니다.  
-> 키는 앱에 입력하지 않고, PC에 저장된 AWS profile을 사용합니다.
-        """
-    )
+# 🚨 수정된 부분: 사전 준비 설명 제거 후 경고 문구 추가
+st.warning("⚠️ **주의!** 출발 및 종료 시간을 정확하게 기입해서 다운로드해 주세요.")
 
 # --- Device(색상) 선택 ---
 device_choice = st.selectbox("Device 선택", list(DEVICE_MAP.keys()), index=0)
@@ -474,7 +465,6 @@ else:
     participant = st.text_input("PARTICIPANT (수동 입력, S3 폴더명 그대로)", value=fallback_default)
 
 # --- 시간 범위 ---
-# --- 시간 범위 ---
 st.subheader("시간 범위 (KST, 한국시간)")
 
 # 체크박스와 복잡한 if/else 로직을 제거하고, 심플하게 배치
@@ -509,7 +499,7 @@ if run:
     window = Window(start_kst=start_dt, end_kst=end_dt)
     prefix = s3_prefix(org, prog, site, date_str, participant)
 
-    st.write(f"🎨 선택: **{device_choice}**  |  🔐 profile: `{aws_profile}`")
+    st.write(f"🎨 선택: **{device_choice}** |  🔐 profile: `{aws_profile}`")
     st.write(f"📌 S3 Prefix: `{prefix}`")
 
     local_cache = os.path.join(CACHE_DIR, device_choice.replace(" ", "_"), participant, date_str)
