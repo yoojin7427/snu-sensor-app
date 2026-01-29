@@ -465,18 +465,35 @@ else:
     participant = st.text_input("PARTICIPANT (수동 입력, S3 폴더명 그대로)", value=fallback_default)
 
 # --- 시간 범위 ---
+# --- 시간 범위 ---
 st.subheader("시간 범위 (KST, 한국시간)")
 
-# 💡 팁: step=60 을 넣으면 1분 단위로 선택할 수 있습니다.
+# 💡 텍스트 입력 방식을 위한 헬퍼 함수
+def parse_hhmm(time_str: str, default: time) -> time:
+    try:
+        # 공백 제거 및 콜론 확인
+        time_str = time_str.strip()
+        return datetime.strptime(time_str, "%H:%M").time()
+    except ValueError:
+        return None
+
 tc1, tc2 = st.columns(2)
 
 with tc1:
-    t_start = st.time_input("시작", value=time(10, 0), step=60, key="t_start_picker")
+    # 이제 text_input이므로 백스페이스로 자유롭게 지울 수 있습니다.
+    t_start_str = st.text_input("시작 (HH:MM)", value="10:00", help="예: 14:24")
+    t_start = parse_hhmm(t_start_str, time(10, 0))
 
 with tc2:
-    t_end = st.time_input("종료", value=time(11, 0), step=60, key="t_end_picker")
+    t_end_str = st.text_input("종료 (HH:MM)", value="11:00", help="예: 14:25")
+    t_end = parse_hhmm(t_end_str, time(11, 0))
 
-st.caption("※ 1분 단위로 조절 가능합니다. (직접 타이핑 입력도 가능)")
+# 입력 형식 체크 (형식이 틀리면 경고)
+if t_start is None or t_end is None:
+    st.error("⚠️ 시간 형식이 올바르지 않습니다. '14:24' 처럼 입력해주세요.")
+    st.stop()  # 실행 중단
+
+st.caption("※ 자유롭게 입력하세요. 내부적으로는 정확히 UTC로 변환됩니다.")
 
 run = st.button("🚀 다운로드 + 변환 실행", type="primary")
 
@@ -560,4 +577,5 @@ with st.expander("🧯 자주 나는 에러 / 해결"):
 - **time_kst가 이상함**: tags.csv로 KST 변환이 맞는지 확인  
         """
     )
+
 
